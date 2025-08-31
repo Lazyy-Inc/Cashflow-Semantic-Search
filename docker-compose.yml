@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  semantic-search:
+    build: .
+    container_name: semantic-search
+    ports:
+      - "8078:8000"
+    env_file:
+      - .env
+#    volumes:
+#      - ./app:/app
+

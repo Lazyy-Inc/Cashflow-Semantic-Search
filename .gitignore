@@ -1,0 +1,98 @@
+# Fichier .gitignore pour cashflow-semantic-search
+
+# Environnements virtuels Python
+venv/
+env/
+.venv/
+ENV/
+
+# Fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Fichiers de cache et données de l'application
+app/__pycache__/
+app/*.pyc
+app/data.json
+app/index.faiss
+app/meta.json
+
+# Fichiers de environment
+.env
+.env.local
+.env.dev
+.env.prod
+.env.test
+
+# Fichiers de développement
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Fichiers de logs
+*.log
+logs/
+
+# Fichiers de coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+nosetests.xml
+
+# Fichiers de documentation
+docs/_build/
+
+# Fichiers de déploiement
+Dockerfile.old
+docker-compose.override.yml
+.dockerignore
+
+# Fichiers temporaires
+tmp/
+temp/
+
+# Fichiers système
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Fichiers spécifiques à FAISS (si générés)
+*.faiss
+*.index
+
+# Fichiers de modèles téléchargés (optionnel - si vous voulez éviter de versionner les gros fichiers)
+# models/
+# *.bin
+# *.pt
+# *.pth
+
+# Fichiers de cache SentenceTransformers
+.cache/
