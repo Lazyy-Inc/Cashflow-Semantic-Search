@@ -1,0 +1,32 @@
+name: Deploying
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Run deploy.sh on remote server via sshpass
+        run: |
+          sshpass -p "${{ secrets.DOCKER_SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.DOCKER_SERVER_USERNAME }}@${{ secrets.DOCKER_SERVER_HOST }} << 'EOF'
+          echo "Connexion OK"
+          cd cashflow-semantic-search
+
+          echo "Mise à jour du dépôt..."
+          git fetch --all
+          git reset --hard origin/main
+
+          echo "Reconstruction et relance des conteneurs..."
+          docker compose build
+          docker compose up -d
+          EOF
