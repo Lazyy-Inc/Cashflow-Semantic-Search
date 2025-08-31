@@ -8,6 +8,7 @@ services:
       - "8078:8000"
     env_file:
       - .env
+    restart: always
 #    volumes:
 #      - ./app:/app
 

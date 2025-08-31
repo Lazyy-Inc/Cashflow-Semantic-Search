@@ -4,7 +4,7 @@ import faiss
 from fastapi import FastAPI, Query
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+model = SentenceTransformer("intfloat/multilingual-e5-large")
 
 # CHEMINS ABSOLUS
 index = faiss.read_index("/app/index.faiss")
@@ -18,11 +18,21 @@ def search(query: str = Query(..., description="Transaction name à chercher")):
     embedding = model.encode([query], normalize_embeddings=True)
     embedding = np.array(embedding, dtype=np.float32)
 
-    scores, ids = index.search(embedding, k=3)
+    scores, ids = index.search(embedding, k=5)  # Augmenté à 5 résultats
+    
     results = []
     for i, idx in enumerate(ids[0]):
+        item = meta[idx]
+        # Format exact demandé
+        result = {
+            "id": item["id"],  # ID de la sous-catégorie
+            "parent": item["parent"],  # ID de la catégorie
+            "initialTransactionName": item["initialTransactionName"],
+            "categoryName": item["categoryName"],
+            "subCategoryName": item["subCategoryName"]
+        }
         results.append({
-            "match": meta[idx],
+            "match": result,
             "score": float(scores[0][i])
         })
 

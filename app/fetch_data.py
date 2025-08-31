@@ -8,6 +8,7 @@ load_dotenv()
 TOLGEE_API_KEY = os.getenv("TOLGEE_API_KEY")
 TOLGEE_URL = os.getenv("TOLGEE_URL")
 CATEGORY_URL = os.getenv("CATEGORY_URL")
+CATEGORY_API_KEY = os.getenv("CATEGORY_API_KEY")
 
 # Fetch traductions
 resp = requests.get(
@@ -20,7 +21,13 @@ resp = requests.get(
 translations = resp.json().get("en", {})
 
 # Fetch catégories
-categories = requests.get(CATEGORY_URL).json()
+categories = requests.get(
+    CATEGORY_URL,
+    headers={
+        "Accept": "application/json",
+        "X-API-Key": CATEGORY_API_KEY
+    }
+).json()
 
 def translate_key(key: str) -> str:
     return translations.get(key, key)
