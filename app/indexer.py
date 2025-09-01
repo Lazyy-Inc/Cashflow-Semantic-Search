@@ -4,7 +4,7 @@ import faiss
 from sentence_transformers import SentenceTransformer
 
 # Chargement du modèle
-model = SentenceTransformer("intfloat/multilingual-e5-large")
+model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
 
 # CHEMIN ABSOLU
 with open("/app/data.json", "r", encoding="utf-8") as f:
@@ -12,39 +12,58 @@ with open("/app/data.json", "r", encoding="utf-8") as f:
 
 texts, meta = [], []
 empty_count = 0
+valid_subcats = 0
 
 for cat in data:
     if not cat.get("name"):
         print(f"⚠️ Catégorie ignorée (nom vide): ID {cat.get('id')}")
         continue
-        
+
+    cat_desc = cat.get("description", "").strip()
+    cat_context = f"Category: {cat['name']}. {cat_desc}" if cat_desc else f"Category: {cat['name']}"
+
     for sub in cat.get("subcategories", []):
         if not sub.get("name"):
             print(f"⚠️ Sous-catégorie ignorée (nom vide): ID {sub.get('id')}")
             continue
-            
-        for txn in sub.get("transactions", []):
-            # Vérification robuste du nom
-            txn_name = txn.get("name")
-            if not txn_name or not isinstance(txn_name, str) or txn_name.strip() == "":
-                empty_count += 1
-                continue
-                
-            texts.append(txn_name.strip())
-            meta.append({
-                "id": sub["id"],
-                "parent": cat["id"],
-                "initialTransactionName": txn_name.strip(),
-                "categoryName": cat["name"],
-                "subCategoryName": sub["name"]
-            })
+
+        sub_desc = sub.get("description", "").strip()
+        sub_context = f"SubCategory: {sub['name']}. {sub_desc}" if sub_desc else f"SubCategory: {sub['name']}"
+
+        # Récupérer les transactions valides
+        txn_names = [
+            txn["name"].strip()
+            for txn in sub.get("transactions", [])
+            if txn.get("name") and isinstance(txn.get("name"), str) and txn["name"].strip() != ""
+        ]
+
+        if not txn_names:
+            empty_count += 1
+            continue
+
+        valid_subcats += 1
+
+        # On regroupe les transactions comme mots-clés
+        keywords = ", ".join(txn_names)
+        full_text = f"{sub_context} - {cat_context} - keywords: {keywords}"
+
+        texts.append(full_text)
+        meta.append({
+            "id": sub["id"],
+            "parent": cat["id"],
+            "categoryName": cat["name"],
+            "subCategoryName": sub["name"],
+            "categoryDescription": cat_desc,
+            "subCategoryDescription": sub_desc,
+            "keywords": txn_names  # on garde la liste brute pour usage futur
+        })
 
 print(f"📊 Statistiques:")
-print(f"   - Transactions valides: {len(texts)}")
-print(f"   - Transactions ignorées (noms vides): {empty_count}")
+print(f"   - Sous-catégories valides: {valid_subcats}")
+print(f"   - Sous-catégories ignorées (aucune transaction): {empty_count}")
 
 if not texts:
-    print("❌ Aucune transaction valide à encoder!")
+    print("❌ Aucune sous-catégorie valide à encoder!")
     exit(1)
 
 # Encodage
@@ -60,4 +79,5 @@ faiss.write_index(index, "/app/index.faiss")
 with open("/app/meta.json", "w", encoding="utf-8") as f:
     json.dump(meta, f, ensure_ascii=False, indent=2)
 
-print(f"✅ Index créé avec {len(texts)} transactions")
+print(f"✅ Index créé avec {len(texts)} sous-catégories")
+

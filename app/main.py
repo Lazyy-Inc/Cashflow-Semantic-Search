@@ -4,7 +4,7 @@ import faiss
 from fastapi import FastAPI, Query
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer("intfloat/multilingual-e5-large")
+model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
 
 # CHEMINS ABSOLUS
 index = faiss.read_index("/app/index.faiss")
@@ -27,7 +27,7 @@ def search(query: str = Query(..., description="Transaction name à chercher")):
         result = {
             "id": item["id"],  # ID de la sous-catégorie
             "parent": item["parent"],  # ID de la catégorie
-            "initialTransactionName": item["initialTransactionName"],
+#            "initialTransactionName": item["initialTransactionName"],
             "categoryName": item["categoryName"],
             "subCategoryName": item["subCategoryName"]
         }

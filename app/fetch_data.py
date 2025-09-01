@@ -37,7 +37,7 @@ for cat in categories:
     cat["name"] = translate_key(cat["name"])
     for sub in cat.get("subcategories", []):
         sub["name"] = translate_key(sub["name"])
-
+#        sub["transactions"] = [] # Pour le moment les transactions ne sont pas assez fiable...
 # Sauvegarde - CHEMIN ABSOLU
 data_path = "/app/data.json"
 with open(data_path, "w", encoding="utf-8") as f:
